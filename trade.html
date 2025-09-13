@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Entry - Admin Panel</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2d1b4e 0%, #1e3a5f 50%, #0f4c75 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+        }
+        
+        .header h1 {
+            color: #00ff88;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #00ff88;
+        }
+        
+        .header p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .trade-form {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            border-radius: 15px;
+            border: 2px solid #444;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .buy-btn {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #000;
+            border: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .buy-btn:hover {
+            background: linear-gradient(135deg, #00cc6a 0%, #00aa55 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .sell-btn {
+            background: linear-gradient(135deg, #ff4444 0%, #cc3333 100%);
+            color: #fff;
+            border: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .sell-btn:hover {
+            background: linear-gradient(135deg, #cc3333 0%, #aa2222 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4);
+        }
+        
+        .status-panel {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #444;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-panel h3 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .recent-trades {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .trade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid #00ff88;
+        }
+        
+        .trade-item.sell {
+            border-left-color: #ff4444;
+        }
+        
+        .trade-action {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .trade-action.buy {
+            color: #00ff88;
+        }
+        
+        .trade-action.sell {
+            color: #ff4444;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: #00ff88;
+            color: #000;
+        }
+        
+        .notification.error {
+            background: #ff4444;
+            color: #fff;
+        }
+        
+        .quick-coins {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .coin-chip {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .coin-chip:hover {
+            background: rgba(0, 255, 136, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .connection-status {
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .connected {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+        
+        .disconnected {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Trade Entry Panel</h1>
+            <p>Enter your real trades to feed the AI terminal</p>
+        </div>
+
+        <div class="connection-status disconnected" id="connectionStatus">
+            🔴 Demo Mode - Configure Firebase to connect
+        </div>
+
+        <form class="trade-form" id="tradeForm">
+            <div class="form-group">
+                <label for="symbol">Coin Symbol</label>
+                <input type="text" id="symbol" name="symbol" placeholder="BTC, ETH, SOL..." required>
+                <div class="quick-coins">
+                    <span class="coin-chip" onclick="setSymbol('BTC')">BTC</span>
+                    <span class="coin-chip" onclick="setSymbol('ETH')">ETH</span>
+                    <span class="coin-chip" onclick="setSymbol('SOL')">SOL</span>
+                    <span class="coin-chip" onclick="setSymbol('ADA')">ADA</span>
+                    <span class="coin-chip" onclick="setSymbol('DOT')">DOT</span>
+                    <span class="coin-chip" onclick="setSymbol('AVAX')">AVAX</span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" step="0.00000001" placeholder="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price ($)</label>
+                    <input type="number" id="price" name="price" step="0.01" placeholder="65000.00" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes (Optional)</label>
+                <input type="text" id="notes" name="notes" placeholder="Entry reason, strategy, etc...">
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="buy-btn" onclick="submitTrade('buy')">
+                    🚀 BUY
+                </button>
+                <button type="button" class="sell-btn" onclick="submitTrade('sell')">
+                    💰 SELL
+                </button>
+            </div>
+        </form>
+
+        <div class="status-panel">
+            <h3>Recent Trades</h3>
+            <div class="recent-trades" id="recentTrades">
+                <div style="text-align: center; color: #666; padding: 20px;">
+                    No trades submitted yet...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Firebase configuration - Replace with your config
+        const firebaseConfig = {
+            // Add your Firebase configuration here
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase (uncomment when you have your config)
+        // firebase.initializeApp(firebaseConfig);
+        // const db = firebase.firestore();
+
+        class TradeEntryPanel {
+            constructor() {
+                this.trades = [];
+                this.isConnected = false;
+                this.init();
+            }
+
+            init() {
+                // Try to connect to Firebase (will fail in demo mode)
+                this.checkConnection();
+                
+                // Load recent trades from localStorage for demo
+                this.loadRecentTrades();
+                
+                // Set up form validation
+                this.setupFormValidation();
+            }
+
+            checkConnection() {
+                const statusEl = document.getElementById('connectionStatus');
+                
+                // In real implementation, check Firebase connection
+                // For demo, always show disconnected
+                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                    statusEl.textContent = '🟢 Connected to Firebase';
+                    statusEl.className = 'connection-status connected';
+                    this.isConnected = true;
+                } else {
+                    statusEl.textContent = '🔴 Demo Mode - Configure Firebase to connect';
+                    statusEl.className = 'connection-status disconnected';
+                    this.isConnected = false;
+                }
+            }
+
+            setupFormValidation() {
+                const symbolInput = document.getElementById('symbol');
+                const amountInput = document.getElementById('amount');
+                const priceInput = document.getElementById('price');
+
+                // Auto-uppercase symbol
+                symbolInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                });
+
+                // Validate positive numbers
+                [amountInput, priceInput].forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        if (parseFloat(e.target.value) < 0) {
+                            e.target.value = '';
+                        }
+                    });
+                });
+            }
+
+            async submitTrade(action) {
+                const form = document.getElementById('tradeForm');
+                const formData = new FormData(form);
+                
+                const trade = {
+                    action: action,
+                    symbol: formData.get('symbol').toUpperCase(),
+                    amount: parseFloat(formData.get('amount')),
+                    price: parseFloat(formData.get('price')),
+                    notes: formData.get('notes') || '',
+                    timestamp: new Date().toISOString(),
+                    total: parseFloat(formData.get('amount')) * parseFloat(formData.get('price'))
+                };
+
+                // Validate trade data
+                if (!this.validateTrade(trade)) {
+                    return;
+                }
+
+                try {
+                    if (this.isConnected) {
+                        // Save to Firebase
+                        await this.saveToFirebase(trade);
+                    } else {
+                        // Demo mode - save to localStorage
+                        await this.saveToDemoStorage(trade);
+                    }
+
+                    // Show success notification
+                    this.showNotification(`${action.toUpperCase()} order submitted: ${trade.amount} ${trade.symbol} @ ${trade.price}`, 'success');
+                    
+                    // Clear form
+                    form.reset();
+                    
+                    // Update recent trades display
+                    this.displayRecentTrades();
+
+                } catch (error) {
+                    console.error('Error submitting trade:', error);
+                    this.showNotification('Error submitting trade. Please try again.', 'error');
+                }
+            }
+
+            validateTrade(trade) {
+                if (!trade.symbol || trade.symbol.length === 0) {
+                    this.showNotification('Please enter a coin symbol', 'error');
+                    return false;
+                }
+
+                if (!trade.amount || trade.amount <= 0) {
+                    this.showNotification('Please enter a valid amount', 'error');
+                    return false;
+                }
+
+                if (!trade.price || trade.price <= 0) {
+                    this.showNotification('Please enter a valid price', 'error');
+                    return false;
+                }
+
+                return true;
+            }
+
+            async saveToFirebase(trade) {
+                // Uncomment when Firebase is configured
+                /*
+                await db.collection('trades').add({
+                    ...trade,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                */
+                
+                // For demo purposes, simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
+            async saveToDemoStorage(trade) {
+                // Save to localStorage for demo
+                const trades = JSON.parse(localStorage.getItem('demoTrades') || '[]');
+                trades.unshift(trade);
+                
+                // Keep only last 50 trades
+                if (trades.length > 50) {
+                    trades.splice(50);
+                }
+                
+                localStorage.setItem('demoTrades', JSON.stringify(trades));
+                this.trades = trades;
+
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+                // In demo mode, also update the main terminal if it's open in another tab
+                this.notifyMainTerminal(trade);
+            }
+
+            notifyMainTerminal(trade) {
+                // Use localStorage event to communicate between tabs in demo mode
+                localStorage.setItem('newTradeNotification', JSON.stringify({
+                    trade,
+                    timestamp: Date.now()
+                }));
+            }
+
+            async loadRecentTrades() {
+                try {
+                    const snapshot = await db.collection('trades')
+                        .orderBy('timestamp', 'desc')
+                        .limit(20)
+                        .get();
+                    
+                    this.trades = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        // Convert Firestore timestamp to ISO string if needed
+                        if (data.timestamp?.toDate) {
+                            data.timestamp = data.timestamp.toDate().toISOString();
+                        }
+                        this.trades.push(data);
+                    });
+                    
+                    this.displayRecentTrades();
+                } catch (error) {
+                    console.error('Error loading trades from Firebase:', error);
+                    this.loadRecentTradesFromLocal();
+                }
+            }
+
+            loadRecentTradesFromLocal() {
+                // Fallback to localStorage
+                this.trades = JSON.parse(localStorage.getItem('demoTrades') || '[]');
+                this.displayRecentTrades();
+            }
+
+            displayRecentTrades() {
+                const container = document.getElementById('recentTrades');
+                
+                if (this.trades.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No trades submitted yet...</div>';
+                    return;
+                }
+
+                let html = '';
+                const recentTrades = this.trades.slice(0, 10);
+
+                for (const trade of recentTrades) {
+                    const date = new Date(trade.timestamp).toLocaleString();
+                    html += `
+                        <div class="trade-item ${trade.action}">
+                            <div>
+                                <div class="trade-action ${trade.action}">${trade.action}</div>
+                                <div style="font-size: 0.9rem; color: #aaa;">${date}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold;">${trade.amount} ${trade.symbol}</div>
+                                <div style="color: #aaa;">@ ${trade.price}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold;">${trade.total.toFixed(2)}</div>
+                                ${trade.notes ? `<div style="font-size: 0.8rem; color: #888;">${trade.notes}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+            }
+
+            showNotification(message, type) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                
+                // Show notification
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+
+                // Hide notification after 4 seconds
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            }
+        }
+
+        // Initialize the panel
+        const tradePanel = new TradeEntryPanel();
+
+        // Utility functions
+        function setSymbol(symbol) {
+            document.getElementById('symbol').value = symbol;
+        }
+
+        function submitTrade(action) {
+            tradePanel.submitTrade(action);
+        }
+
+        // Listen for storage changes to refresh recent trades
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'demoTrades') {
+                tradePanel.loadRecentTrades();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'b') {
+                    e.preventDefault();
+                    submitTrade('buy');
+                } else if (e.key === 's') {
+                    e.preventDefault();
+                    submitTrade('sell');
+                }
+            }
+        });
+
+        // Auto-focus first input
+        document.getElementById('symbol').focus();
+    </script>
+</body>
+</html>
