@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trade Entry - Admin Panel</title>
+    <title>Polymarket Girl - Admin Panel</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
     <style>
@@ -245,41 +245,64 @@
             color: #ff4444;
             border: 1px solid #ff4444;
         }
+
+        .terminal-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            color: #00ff88;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .terminal-link:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Trade Entry Panel</h1>
-            <p>Enter your real trades to feed the AI terminal</p>
+            <h1>Polymarket Girl Admin</h1>
+            <p>Enter trades to feed the AI terminal - All users see the same data</p>
         </div>
 
-        <div class="connection-status disconnected" id="connectionStatus">
-            🔴 Demo Mode - Configure Firebase to connect
+        <a href="/" class="terminal-link">
+            🚀 View Main Terminal (Open in New Tab)
+        </a>
+
+        <div class="connection-status connected" id="connectionStatus">
+            🟢 Connected to Firebase - All trades are public
         </div>
 
         <form class="trade-form" id="tradeForm">
             <div class="form-group">
                 <label for="symbol">Coin Symbol</label>
-                <input type="text" id="symbol" name="symbol" placeholder="BTC, ETH, SOL..." required>
+                <input type="text" id="symbol" name="symbol" placeholder="PEPE, WIF, BONK..." required>
                 <div class="quick-coins">
-                    <span class="coin-chip" onclick="setSymbol('BTC')">BTC</span>
-                    <span class="coin-chip" onclick="setSymbol('ETH')">ETH</span>
-                    <span class="coin-chip" onclick="setSymbol('SOL')">SOL</span>
-                    <span class="coin-chip" onclick="setSymbol('ADA')">ADA</span>
-                    <span class="coin-chip" onclick="setSymbol('DOT')">DOT</span>
-                    <span class="coin-chip" onclick="setSymbol('AVAX')">AVAX</span>
+                    <span class="coin-chip" onclick="setSymbol('PEPE')">PEPE</span>
+                    <span class="coin-chip" onclick="setSymbol('WIF')">WIF</span>
+                    <span class="coin-chip" onclick="setSymbol('BONK')">BONK</span>
+                    <span class="coin-chip" onclick="setSymbol('POPCAT')">POPCAT</span>
+                    <span class="coin-chip" onclick="setSymbol('FARTCOIN')">FARTCOIN</span>
+                    <span class="coin-chip" onclick="setSymbol('WOJAK')">WOJAK</span>
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label for="amount">Amount</label>
-                    <input type="number" id="amount" name="amount" step="0.00000001" placeholder="0.1" required>
+                    <input type="number" id="amount" name="amount" step="0.00000001" placeholder="1000000" required>
                 </div>
                 <div class="form-group">
                     <label for="price">Price ($)</label>
-                    <input type="number" id="price" name="price" step="0.01" placeholder="65000.00" required>
+                    <input type="number" id="price" name="price" step="0.00000001" placeholder="0.00001205" required>
                 </div>
             </div>
 
@@ -290,19 +313,19 @@
 
             <div class="action-buttons">
                 <button type="button" class="buy-btn" onclick="submitTrade('buy')">
-                    🚀 BUY
+                    🚀 BUY (Polymarket Girl Claims This)
                 </button>
                 <button type="button" class="sell-btn" onclick="submitTrade('sell')">
-                    💰 SELL
+                    💰 SELL (Polymarket Girl Claims This)
                 </button>
             </div>
         </form>
 
         <div class="status-panel">
-            <h3>Recent Trades</h3>
+            <h3>Recent Trades (Public - All Users See These)</h3>
             <div class="recent-trades" id="recentTrades">
                 <div style="text-align: center; color: #666; padding: 20px;">
-                    No trades submitted yet...
+                    Loading trades...
                 </div>
             </div>
         </div>
@@ -311,22 +334,22 @@
     <div class="notification" id="notification"></div>
 
     <script>
-        // Firebase configuration - Replace with your config
+        // Firebase configuration
         const firebaseConfig = {
-            // Add your Firebase configuration here
-            apiKey: "your-api-key",
-            authDomain: "your-project.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "your-app-id"
+            apiKey: "AIzaSyBL_Abt3EEibFA-67ypLx_QwdIv9lY3xds",
+            authDomain: "polymarket-675a5.firebaseapp.com",
+            projectId: "polymarket-675a5",
+            storageBucket: "polymarket-675a5.firebasestorage.app",
+            messagingSenderId: "763899221788",
+            appId: "1:763899221788:web:3b6a2e86950e88c8b40cd9",
+            measurementId: "G-6QN30DZS8Z"
         };
 
-        // Initialize Firebase (uncomment when you have your config)
-        // firebase.initializeApp(firebaseConfig);
-        // const db = firebase.firestore();
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        class TradeEntryPanel {
+        class PolymarketGirlAdmin {
             constructor() {
                 this.trades = [];
                 this.isConnected = false;
@@ -334,29 +357,42 @@
             }
 
             init() {
-                // Try to connect to Firebase (will fail in demo mode)
-                this.checkConnection();
-                
-                // Load recent trades from localStorage for demo
-                this.loadRecentTrades();
+                // Connect to Firebase
+                this.initializeFirebase();
                 
                 // Set up form validation
                 this.setupFormValidation();
+                
+                // Load recent trades
+                this.loadRecentTrades();
+                
+                // Listen for new trades
+                this.listenForTrades();
             }
 
-            checkConnection() {
+            async initializeFirebase() {
+                try {
+                    // Test Firebase connection
+                    await db.collection('trades').limit(1).get();
+                    this.isConnected = true;
+                    this.updateConnectionStatus();
+                    
+                } catch (error) {
+                    console.error('Firebase connection error:', error);
+                    this.isConnected = false;
+                    this.updateConnectionStatus();
+                }
+            }
+
+            updateConnectionStatus() {
                 const statusEl = document.getElementById('connectionStatus');
                 
-                // In real implementation, check Firebase connection
-                // For demo, always show disconnected
-                if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-                    statusEl.textContent = '🟢 Connected to Firebase';
+                if (this.isConnected) {
+                    statusEl.textContent = '🟢 Connected to Firebase - All trades are public';
                     statusEl.className = 'connection-status connected';
-                    this.isConnected = true;
                 } else {
-                    statusEl.textContent = '🔴 Demo Mode - Configure Firebase to connect';
+                    statusEl.textContent = '🔴 Firebase connection failed - Check console';
                     statusEl.className = 'connection-status disconnected';
-                    this.isConnected = false;
                 }
             }
 
@@ -404,18 +440,14 @@
                         // Save to Firebase
                         await this.saveToFirebase(trade);
                     } else {
-                        // Demo mode - save to localStorage
-                        await this.saveToDemoStorage(trade);
+                        throw new Error('Firebase not connected');
                     }
 
                     // Show success notification
-                    this.showNotification(`${action.toUpperCase()} order submitted: ${trade.amount} ${trade.symbol} @ ${trade.price}`, 'success');
+                    this.showNotification(`${action.toUpperCase()} order submitted: ${trade.amount} ${trade.symbol} @ $${trade.price}`, 'success');
                     
                     // Clear form
                     form.reset();
-                    
-                    // Update recent trades display
-                    this.displayRecentTrades();
 
                 } catch (error) {
                     console.error('Error submitting trade:', error);
@@ -435,7 +467,6 @@
                 }
 
                 if (!trade.price || trade.price <= 0) {
-                    this.showNotification('Please enter a valid price', 'error');
                     return false;
                 }
 
@@ -443,44 +474,10 @@
             }
 
             async saveToFirebase(trade) {
-                // Uncomment when Firebase is configured
-                /*
                 await db.collection('trades').add({
                     ...trade,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                */
-                
-                // For demo purposes, simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-
-            async saveToDemoStorage(trade) {
-                // Save to localStorage for demo
-                const trades = JSON.parse(localStorage.getItem('demoTrades') || '[]');
-                trades.unshift(trade);
-                
-                // Keep only last 50 trades
-                if (trades.length > 50) {
-                    trades.splice(50);
-                }
-                
-                localStorage.setItem('demoTrades', JSON.stringify(trades));
-                this.trades = trades;
-
-                // Simulate network delay
-                await new Promise(resolve => setTimeout(resolve, 300));
-
-                // In demo mode, also update the main terminal if it's open in another tab
-                this.notifyMainTerminal(trade);
-            }
-
-            notifyMainTerminal(trade) {
-                // Use localStorage event to communicate between tabs in demo mode
-                localStorage.setItem('newTradeNotification', JSON.stringify({
-                    trade,
-                    timestamp: Date.now()
-                }));
             }
 
             async loadRecentTrades() {
@@ -503,14 +500,23 @@
                     this.displayRecentTrades();
                 } catch (error) {
                     console.error('Error loading trades from Firebase:', error);
-                    this.loadRecentTradesFromLocal();
+                    document.getElementById('recentTrades').innerHTML = '<div style="text-align: center; color: #ff4444; padding: 20px;">Error loading trades</div>';
                 }
             }
 
-            loadRecentTradesFromLocal() {
-                // Fallback to localStorage
-                this.trades = JSON.parse(localStorage.getItem('demoTrades') || '[]');
-                this.displayRecentTrades();
+            listenForTrades() {
+                // Listen for new trades in real-time
+                db.collection('trades')
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .onSnapshot((snapshot) => {
+                        snapshot.docChanges().forEach((change) => {
+                            if (change.type === 'added') {
+                                // Reload recent trades when new trade is added
+                                this.loadRecentTrades();
+                            }
+                        });
+                    });
             }
 
             displayRecentTrades() {
@@ -565,7 +571,7 @@
         }
 
         // Initialize the panel
-        const tradePanel = new TradeEntryPanel();
+        const adminPanel = new PolymarketGirlAdmin();
 
         // Utility functions
         function setSymbol(symbol) {
@@ -573,15 +579,8 @@
         }
 
         function submitTrade(action) {
-            tradePanel.submitTrade(action);
+            adminPanel.submitTrade(action);
         }
-
-        // Listen for storage changes to refresh recent trades
-        window.addEventListener('storage', (e) => {
-            if (e.key === 'demoTrades') {
-                tradePanel.loadRecentTrades();
-            }
-        });
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
