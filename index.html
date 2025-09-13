@@ -843,7 +843,7 @@
                 this.addTerminalLine("PMG", frustration, "ai-comment");
             }
 
-            // Listen for Firebase updates for manual trades
+            // Listen for Firebase updates for manual trades (universal for all users)
             listenForUpdates() {
                 db.collection('trades')
                     .orderBy('timestamp', 'desc')
@@ -865,6 +865,9 @@
                         console.error('Error listening for updates:', error);
                         this.addTerminalLine("SYSTEM", "⚠️ Lost connection to live feed", "ai-comment");
                     });
+                
+                this.addTerminalLine("PMG", "🤖 I'm now actively monitoring my trading activity...", "ai-comment");
+                document.getElementById('aiStatus').textContent = `Polymarket Girl Active - Scan #${this.scanCount}`;
             }
         }
 
