@@ -546,11 +546,13 @@
             }
 
             processTrade(trade) {
+                console.log('Processing trade:', trade);
+                
                 const { action, symbol, amount, price, timestamp } = trade;
                 const total = amount * price;
                 
                 // Add to terminal with first-person language
-                this.addTerminalLine("PMG", `📊 Just ${action.toUpperCase()}ED ${amount} ${symbol} @ $${price} (Total: $${total.toFixed(2)})`, 
+                this.addTerminalLine("PMG", `📊 Just ${action.toUpperCase()}ED ${amount} ${symbol} @ ${price} (Total: ${total.toFixed(2)})`, 
                     action === 'buy' ? 'buy-action' : 'sell-action');
                 
                 // Get AI reaction to trade (speaking as the trader)
