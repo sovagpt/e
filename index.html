@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AYA - AI Trading Terminal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a0d2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 2px solid #00ff88;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            color: #00ff88;
+            text-shadow: 0 0 20px #00ff88;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: #888;
+            font-size: 1.2rem;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .terminal {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 500px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+        
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background: #00ff88;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .terminal-title {
+            color: #00ff88;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .terminal-content {
+            height: 400px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .terminal-line {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        
+        .timestamp {
+            color: #666;
+            margin-right: 10px;
+        }
+        
+        .ai-comment {
+            color: #00ff88;
+        }
+        
+        .trade-notification {
+            color: #ffaa00;
+            font-weight: bold;
+        }
+        
+        .buy-action {
+            color: #00ff88;
+        }
+        
+        .sell-action {
+            color: #ff4444;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #444;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .panel h3 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        
+        .portfolio-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .coin-symbol {
+            color: #00ff88;
+            font-weight: bold;
+        }
+        
+        .positive {
+            color: #00ff88;
+        }
+        
+        .negative {
+            color: #ff4444;
+        }
+        
+        .position-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .trade-item {
+            display: grid;
+            grid-template-columns: 60px 80px 80px 60px;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            font-size: 0.8rem;
+        }
+        
+        .scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: #00ff88 #333;
+        }
+        
+        .scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .scrollbar::-webkit-scrollbar-track {
+            background: #333;
+        }
+        
+        .scrollbar::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            border-radius: 3px;
+        }
+        
+        .ai-status {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .total-value {
+            font-size: 1.5rem;
+            color: #00ff88;
+            font-weight: bold;
+            text-shadow: 0 0 10px #00ff88;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>AYA</h1>
+        <p>Autonomous AI Trading Language Model</p>
+    </div>
+
+    <div class="container">
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="status-dot"></div>
+                <div class="terminal-title">AI Trading Terminal</div>
+            </div>
+            <div class="terminal-content scrollbar" id="terminal">
+                <!-- Terminal content will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="panel">
+                <h3>Portfolio Overview</h3>
+                <div class="ai-status">
+                    <div>Total Portfolio Value</div>
+                    <div class="total-value" id="totalValue">$0.00</div>
+                    <div style="color: #666; font-size: 0.8rem; margin-top: 5px;">
+                        AI Status: <span id="aiStatus">Active & Monitoring</span>
+                    </div>
+                </div>
+                <div id="portfolioOverview">
+                    <div class="portfolio-item">
+                        <span style="color: #666;">No positions yet...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Active Positions</h3>
+                <div id="activePositions" class="scrollbar" style="max-height: 200px; overflow-y: auto;">
+                    <div style="color: #666; text-align: center; padding: 20px;">
+                        Waiting for trades...
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3>Recent Trades</h3>
+                <div id="tradeHistory" class="scrollbar" style="max-height: 200px; overflow-y: auto;">
+                    <div style="color: #666; text-align: center; padding: 20px;">
+                        No trades yet...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration - Replace with your config
+        const firebaseConfig = {
+            // Add your Firebase configuration here
+            apiKey: "your-api-key",
+            authDomain: "your-project.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "your-app-id"
+        };
+
+        // Initialize Firebase (uncomment when you have your config)
+        // firebase.initializeApp(firebaseConfig);
+        // const db = firebase.firestore();
+
+        class AITradingTerminal {
+            constructor() {
+                this.terminal = document.getElementById('terminal');
+                this.positions = new Map();
+                this.trades = [];
+                this.totalValue = 0;
+                this.aiPersonality = [
+                    "Market's looking spicy today... 🌶️",
+                    "I'm sensing some whale movements in the deep...",
+                    "The algorithms are whispering secrets to me...",
+                    "Chart patterns are forming like constellations ✨",
+                    "My neural networks are tingling with opportunity",
+                    "The market sentiment is shifting like autumn leaves",
+                    "I detect unusual volume patterns emerging...",
+                    "Time to surf these digital waves! 🌊",
+                    "The blockchain never sleeps, and neither do I",
+                    "Analyzing 47 different indicators simultaneously...",
+                    "I see patterns humans miss in the noise",
+                    "The market is my canvas, trades are my brushstrokes"
+                ];
+                
+                this.init();
+            }
+
+            init() {
+                this.addTerminalLine("SYSTEM", "🤖 AYA Trading Terminal Initialized", "ai-comment");
+                this.addTerminalLine("SYSTEM", "🔗 Connecting to real-time data feed...", "ai-comment");
+                this.addTerminalLine("SYSTEM", "✅ Connection established. Waiting for trades...", "ai-comment");
+                
+                // Start AI random comments
+                this.startAIComments();
+                
+                // Listen for real-time updates (uncomment when Firebase is configured)
+                // this.listenForUpdates();
+                
+                // Demo mode - remove this when using real Firebase
+                this.startDemoMode();
+            }
+
+            startDemoMode() {
+                // This is just for demonstration - remove when using real Firebase
+                setTimeout(() => {
+                    this.addRandomAIComment();
+                }, 3000);
+            }
+
+            addTerminalLine(type, message, className = "") {
+                const line = document.createElement('div');
+                line.className = `terminal-line ${className}`;
+                
+                const timestamp = new Date().toLocaleTimeString();
+                line.innerHTML = `<span class="timestamp">[${timestamp}]</span><span class="type">[${type}]</span> ${message}`;
+                
+                this.terminal.appendChild(line);
+                this.terminal.scrollTop = this.terminal.scrollHeight;
+            }
+
+            startAIComments() {
+                setInterval(() => {
+                    if (Math.random() < 0.3) { // 30% chance every interval
+                        this.addRandomAIComment();
+                    }
+                }, 15000 + Math.random() * 20000); // Random interval between 15-35 seconds
+            }
+
+            addRandomAIComment() {
+                const comment = this.aiPersonality[Math.floor(Math.random() * this.aiPersonality.length)];
+                this.addTerminalLine("AYA", comment, "ai-comment");
+            }
+
+            processTrade(trade) {
+                const { action, symbol, amount, price } = trade;
+                const total = amount * price;
+                
+                // Add to terminal
+                this.addTerminalLine("TRADE", `${action.toUpperCase()} ${amount} ${symbol} @ $${price}`, 
+                    action === 'buy' ? 'buy-action' : 'sell-action');
+                
+                // AI reaction to trade
+                setTimeout(() => {
+                    const reactions = {
+                        buy: [
+                            `Nice entry on ${symbol}! I'm seeing bullish signals 📈`,
+                            `${symbol} acquisition confirmed. Smart timing, human! 🎯`,
+                            `Accumulating ${symbol}... The charts align favorably ⭐`,
+                            `${symbol} added to portfolio. My algorithms approve! ✅`
+                        ],
+                        sell: [
+                            `${symbol} position closed. Profit secured! 💰`,
+                            `Strategic exit on ${symbol}. Well played! 🎲`,
+                            `${symbol} liquidated. Time to hunt new opportunities 🎯`,
+                            `Booking gains on ${symbol}. The market giveth! 📊`
+                        ]
+                    };
+                    
+                    const reactionList = reactions[action];
+                    const reaction = reactionList[Math.floor(Math.random() * reactionList.length)];
+                    this.addTerminalLine("AYA", reaction, "ai-comment");
+                }, 1000 + Math.random() * 3000);
+
+                // Update positions
+                this.updatePositions(trade);
+                this.updateUI();
+            }
+
+            updatePositions(trade) {
+                const { action, symbol, amount, price } = trade;
+                
+                if (!this.positions.has(symbol)) {
+                    this.positions.set(symbol, { amount: 0, avgPrice: 0, totalCost: 0 });
+                }
+
+                const position = this.positions.get(symbol);
+                
+                if (action === 'buy') {
+                    const newTotalCost = position.totalCost + (amount * price);
+                    const newAmount = position.amount + amount;
+                    position.avgPrice = newTotalCost / newAmount;
+                    position.amount = newAmount;
+                    position.totalCost = newTotalCost;
+                } else if (action === 'sell') {
+                    position.amount = Math.max(0, position.amount - amount);
+                    if (position.amount === 0) {
+                        position.avgPrice = 0;
+                        position.totalCost = 0;
+                    }
+                }
+
+                // Add to trade history
+                this.trades.unshift({
+                    ...trade,
+                    timestamp: new Date()
+                });
+
+                // Keep only last 20 trades
+                if (this.trades.length > 20) {
+                    this.trades = this.trades.slice(0, 20);
+                }
+            }
+
+            updateUI() {
+                this.updatePortfolioOverview();
+                this.updateActivePositions();
+                this.updateTradeHistory();
+            }
+
+            updatePortfolioOverview() {
+                const overview = document.getElementById('portfolioOverview');
+                const totalValueEl = document.getElementById('totalValue');
+                
+                if (this.positions.size === 0) {
+                    overview.innerHTML = '<div class="portfolio-item"><span style="color: #666;">No positions yet...</span></div>';
+                    totalValueEl.textContent = '$0.00';
+                    return;
+                }
+
+                let totalValue = 0;
+                let html = '';
+
+                for (const [symbol, position] of this.positions) {
+                    if (position.amount > 0) {
+                        const currentValue = position.amount * position.avgPrice; // In real app, use current market price
+                        totalValue += currentValue;
+                        
+                        html += `
+                            <div class="portfolio-item">
+                                <span class="coin-symbol">${symbol}</span>
+                                <span>$${currentValue.toFixed(2)}</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                overview.innerHTML = html;
+                totalValueEl.textContent = `$${totalValue.toFixed(2)}`;
+                this.totalValue = totalValue;
+            }
+
+            updateActivePositions() {
+                const container = document.getElementById('activePositions');
+                
+                const activePositions = Array.from(this.positions)
+                    .filter(([symbol, position]) => position.amount > 0);
+
+                if (activePositions.length === 0) {
+                    container.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">Waiting for trades...</div>';
+                    return;
+                }
+
+                let html = '';
+                for (const [symbol, position] of activePositions) {
+                    html += `
+                        <div class="position-item">
+                            <div class="coin-symbol">${symbol}</div>
+                            <div>${position.amount.toFixed(4)}</div>
+                            <div>$${position.avgPrice.toFixed(2)}</div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+            }
+
+            updateTradeHistory() {
+                const container = document.getElementById('tradeHistory');
+                
+                if (this.trades.length === 0) {
+                    container.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No trades yet...</div>';
+                    return;
+                }
+
+                let html = '';
+                for (const trade of this.trades.slice(0, 10)) {
+                    html += `
+                        <div class="trade-item">
+                            <div class="${trade.action === 'buy' ? 'positive' : 'negative'}">${trade.action.toUpperCase()}</div>
+                            <div class="coin-symbol">${trade.symbol}</div>
+                            <div>${trade.amount}</div>
+                            <div>$${trade.price}</div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+            }
+
+            // Listen for Firebase updates
+            listenForUpdates() {
+                db.collection('trades')
+                    .orderBy('timestamp', 'desc')
+                    .limit(1)
+                    .onSnapshot((snapshot) => {
+                        snapshot.docChanges().forEach((change) => {
+                            if (change.type === 'added') {
+                                const tradeData = change.doc.data();
+                                // Only process if this is a new trade (within last 10 seconds)
+                                const tradeTime = tradeData.timestamp?.toDate?.() || new Date(tradeData.timestamp);
+                                const now = new Date();
+                                
+                                if (now - tradeTime < 10000) { // Within 10 seconds
+                                    this.processTrade(tradeData);
+                                }
+                            }
+                        });
+                    }, (error) => {
+                        console.error('Error listening for updates:', error);
+                        this.addTerminalLine("SYSTEM", "⚠️ Lost connection to live feed", "ai-comment");
+                    });
+            }
+        }
+
+        // Initialize the terminal
+        const terminal = new AITradingTerminal();
+
+        // Expose for testing (remove in production)
+        window.terminal = terminal;
+    </script>
+</body>
+</html>
