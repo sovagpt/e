@@ -365,29 +365,12 @@
                 const total = amount * price;
                 
                 // Add to terminal
-                this.addTerminalLine("TRADE", `${action.toUpperCase()} ${amount} ${symbol} @ $${price}`, 
+                this.addTerminalLine("TRADE", `${action.toUpperCase()} ${amount} ${symbol} @ ${price}`, 
                     action === 'buy' ? 'buy-action' : 'sell-action');
                 
-                // AI reaction to trade
+                // Get AI reaction to trade
                 setTimeout(() => {
-                    const reactions = {
-                        buy: [
-                            `Nice entry on ${symbol}! I'm seeing bullish signals 📈`,
-                            `${symbol} acquisition confirmed. Smart timing, human! 🎯`,
-                            `Accumulating ${symbol}... The charts align favorably ⭐`,
-                            `${symbol} added to portfolio. My algorithms approve! ✅`
-                        ],
-                        sell: [
-                            `${symbol} position closed. Profit secured! 💰`,
-                            `Strategic exit on ${symbol}. Well played! 🎲`,
-                            `${symbol} liquidated. Time to hunt new opportunities 🎯`,
-                            `Booking gains on ${symbol}. The market giveth! 📊`
-                        ]
-                    };
-                    
-                    const reactionList = reactions[action];
-                    const reaction = reactionList[Math.floor(Math.random() * reactionList.length)];
-                    this.addTerminalLine("AYA", reaction, "ai-comment");
+                    this.getAIComment('trade_reaction', { action, symbol, amount, price });
                 }, 1000 + Math.random() * 3000);
 
                 // Update positions
