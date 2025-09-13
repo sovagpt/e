@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket Girl - AI Trading Terminal</title>
+    <title>Polymarket Girl - Admin Panel</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-app-compat.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/9.23.0/firebase-firestore-compat.min.js"></script>
     <style>
@@ -14,265 +14,324 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a0d2e 0%, #16213e 50%, #0f3460 100%);
-            font-family: 'Courier New', monospace;
-            color: #00ff88;
+            background: linear-gradient(135deg, #2d1b4e 0%, #1e3a5f 50%, #0f4c75 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
             min-height: 100vh;
-            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
         }
         
         .header {
             text-align: center;
-            padding: 2rem;
+            margin-bottom: 40px;
+            padding: 30px;
             background: rgba(0, 0, 0, 0.3);
-            border-bottom: 2px solid #00ff88;
+            border-radius: 15px;
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
         }
         
         .header h1 {
-            font-size: 3rem;
             color: #00ff88;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
             text-shadow: 0 0 20px #00ff88;
-            margin-bottom: 0.5rem;
         }
         
         .header p {
-            color: #888;
-            font-size: 1.2rem;
+            color: #aaa;
+            font-size: 1.1rem;
         }
         
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 20px;
-            padding: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .terminal {
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #00ff88;
-            border-radius: 10px;
-            padding: 20px;
-            min-height: 500px;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
-        }
-        
-        .terminal-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
-        
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            background: #00ff88;
-            border-radius: 50%;
-            margin-right: 10px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .terminal-title {
-            color: #00ff88;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        
-        .terminal-content {
-            height: 400px;
-            overflow-y: auto;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-        
-        .terminal-line {
-            margin-bottom: 5px;
-            padding: 2px 0;
-        }
-        
-        .timestamp {
-            color: #666;
-            margin-right: 10px;
-        }
-        
-        .ai-comment {
-            color: #00ff88;
-        }
-        
-        .trade-notification {
-            color: #ffaa00;
-            font-weight: bold;
-        }
-        
-        .buy-action {
-            color: #00ff88;
-        }
-        
-        .sell-action {
-            color: #ff4444;
-        }
-        
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .panel {
-            background: rgba(0, 0, 0, 0.8);
+        .trade-form {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 40px;
+            border-radius: 15px;
             border: 2px solid #444;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
         }
         
-        .panel h3 {
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .buy-btn {
+            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            color: #000;
+            border: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .buy-btn:hover {
+            background: linear-gradient(135deg, #00cc6a 0%, #00aa55 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
+        }
+        
+        .sell-btn {
+            background: linear-gradient(135deg, #ff4444 0%, #cc3333 100%);
+            color: #fff;
+            border: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .sell-btn:hover {
+            background: linear-gradient(135deg, #cc3333 0%, #aa2222 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4);
+        }
+        
+        .status-panel {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #444;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .status-panel h3 {
             color: #00ff88;
             margin-bottom: 15px;
-            font-size: 1.1rem;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
+            font-size: 1.3rem;
         }
         
-        .portfolio-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 5px;
-        }
-        
-        .coin-symbol {
-            color: #00ff88;
-            font-weight: bold;
-        }
-        
-        .positive {
-            color: #00ff88;
-        }
-        
-        .negative {
-            color: #ff4444;
-        }
-        
-        .position-item {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 5px;
-            font-size: 0.85rem;
+        .recent-trades {
+            max-height: 300px;
+            overflow-y: auto;
         }
         
         .trade-item {
-            display: grid;
-            grid-template-columns: 60px 80px 80px 60px;
-            gap: 10px;
-            margin-bottom: 8px;
-            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
             background: rgba(255, 255, 255, 0.05);
-            border-radius: 5px;
-            font-size: 0.8rem;
+            border-radius: 8px;
+            border-left: 4px solid #00ff88;
         }
         
-        .scrollbar {
-            scrollbar-width: thin;
-            scrollbar-color: #00ff88 #333;
+        .trade-item.sell {
+            border-left-color: #ff4444;
         }
         
-        .scrollbar::-webkit-scrollbar {
-            width: 6px;
+        .trade-action {
+            font-weight: bold;
+            text-transform: uppercase;
         }
         
-        .scrollbar::-webkit-scrollbar-track {
-            background: #333;
+        .trade-action.buy {
+            color: #00ff88;
         }
         
-        .scrollbar::-webkit-scrollbar-thumb {
+        .trade-action.sell {
+            color: #ff4444;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
             background: #00ff88;
-            border-radius: 3px;
+            color: #000;
         }
         
-        .ai-status {
+        .notification.error {
+            background: #ff4444;
+            color: #fff;
+        }
+        
+        .quick-coins {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .coin-chip {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .coin-chip:hover {
+            background: rgba(0, 255, 136, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .connection-status {
             text-align: center;
             padding: 10px;
-            background: rgba(0, 255, 136, 0.1);
-            border-radius: 5px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
         
-        .total-value {
-            font-size: 1.5rem;
+        .connected {
+            background: rgba(0, 255, 136, 0.2);
             color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+        
+        .disconnected {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+
+        .terminal-link {
+            display: block;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            color: #00ff88;
+            text-decoration: none;
             font-weight: bold;
-            text-shadow: 0 0 10px #00ff88;
+            transition: all 0.3s ease;
+        }
+
+        .terminal-link:hover {
+            background: rgba(0, 255, 136, 0.2);
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>POLYMARKET GIRL</h1>
-        <p>AI Trading Terminal - Solana Memecoin Specialist</p>
-    </div>
-
     <div class="container">
-        <div class="terminal">
-            <div class="terminal-header">
-                <div class="status-dot"></div>
-                <div class="terminal-title">Polymarket Girl Trading Terminal</div>
-            </div>
-            <div class="terminal-content scrollbar" id="terminal">
-                <!-- Terminal content will be populated by JavaScript -->
-            </div>
+        <div class="header">
+            <h1>Polymarket Girl Admin</h1>
+            <p>Enter trades to feed the AI terminal - All users see the same data</p>
         </div>
 
-        <div class="sidebar">
-            <div class="panel">
-                <h3>Portfolio Overview</h3>
-                <div class="ai-status">
-                    <div>Total Portfolio Value</div>
-                    <div class="total-value" id="totalValue">$0.00</div>
-                    <div style="color: #666; font-size: 0.8rem; margin-top: 5px;">
-                        Status: <span id="aiStatus">Polymarket Girl Initializing...</span>
-                    </div>
-                </div>
-                <div id="portfolioOverview">
-                    <div class="portfolio-item">
-                        <span style="color: #666;">Loading positions...</span>
-                    </div>
+        <a href="/" class="terminal-link">
+            🚀 View Main Terminal (Open in New Tab)
+        </a>
+
+        <div class="connection-status connected" id="connectionStatus">
+            🟢 Connected to Firebase - All trades are public
+        </div>
+
+        <form class="trade-form" id="tradeForm">
+            <div class="form-group">
+                <label for="symbol">Coin Symbol</label>
+                <input type="text" id="symbol" name="symbol" placeholder="PEPE, WIF, BONK..." required>
+                <div class="quick-coins">
+                    <span class="coin-chip" onclick="setSymbol('PEPE')">PEPE</span>
+                    <span class="coin-chip" onclick="setSymbol('WIF')">WIF</span>
+                    <span class="coin-chip" onclick="setSymbol('BONK')">BONK</span>
+                    <span class="coin-chip" onclick="setSymbol('POPCAT')">POPCAT</span>
+                    <span class="coin-chip" onclick="setSymbol('FARTCOIN')">FARTCOIN</span>
+                    <span class="coin-chip" onclick="setSymbol('WOJAK')">WOJAK</span>
                 </div>
             </div>
 
-            <div class="panel">
-                <h3>Active Positions</h3>
-                <div id="activePositions" class="scrollbar" style="max-height: 200px; overflow-y: auto;">
-                    <div style="color: #666; text-align: center; padding: 20px;">
-                        Loading wallet data...
-                    </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="amount">Amount</label>
+                    <input type="number" id="amount" name="amount" step="0.00000001" placeholder="1000000" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price ($)</label>
+                    <input type="number" id="price" name="price" step="0.00000001" placeholder="0.00001205" required>
                 </div>
             </div>
 
-            <div class="panel">
-                <h3>Recent Trades</h3>
-                <div id="tradeHistory" class="scrollbar" style="max-height: 200px; overflow-y: auto;">
-                    <div style="color: #666; text-align: center; padding: 20px;">
-                        Fetching trade history...
-                    </div>
+            <div class="form-group">
+                <label for="notes">Notes (Optional)</label>
+                <input type="text" id="notes" name="notes" placeholder="Entry reason, strategy, etc...">
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="buy-btn" onclick="submitTrade('buy')">
+                    🚀 BUY (Polymarket Girl Claims This)
+                </button>
+                <button type="button" class="sell-btn" onclick="submitTrade('sell')">
+                    💰 SELL (Polymarket Girl Claims This)
+                </button>
+            </div>
+        </form>
+
+        <div class="status-panel">
+            <h3>Recent Trades (Public - All Users See These)</h3>
+            <div class="recent-trades" id="recentTrades">
+                <div style="text-align: center; color: #666; padding: 20px;">
+                    Loading trades...
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="notification" id="notification"></div>
 
     <script>
         // Firebase configuration
@@ -290,594 +349,254 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        class PolymarketGirlTerminal {
+        class PolymarketGirlAdmin {
             constructor() {
-                this.terminal = document.getElementById('terminal');
-                this.positions = new Map();
                 this.trades = [];
-                this.totalValue = 0;
-                this.scanCount = 1;
-                this.apiEndpoint = 'https://e-chi-coral.vercel.app/api/ai-comment';
-                this.walletEndpoint = 'https://e-chi-coral.vercel.app/api/wallet-tracker';
-                this.walletAddress = 'chdsa9tT1bV5fB4ZBWQcfBn1H62HYGcfLvNTCkD1kB4';
-                this.lastTradeCheck = new Date();
-                
+                this.isConnected = false;
                 this.init();
             }
 
             init() {
-                this.addTerminalLine("SYSTEM", "🤖 Polymarket Girl Trading Terminal Initialized", "ai-comment");
-                this.addTerminalLine("SYSTEM", "🔗 Connecting to Firebase...", "ai-comment");
-                
-                // Initialize Firebase connection
+                // Connect to Firebase
                 this.initializeFirebase();
                 
-                // Start AI random comments
-                this.startAIComments();
+                // Set up form validation
+                this.setupFormValidation();
+                
+                // Load recent trades
+                this.loadRecentTrades();
+                
+                // Listen for new trades
+                this.listenForTrades();
             }
 
             async initializeFirebase() {
                 try {
                     // Test Firebase connection
                     await db.collection('trades').limit(1).get();
-                    this.addTerminalLine("SYSTEM", "✅ Firebase connected.", "ai-comment");
-                    
-                    // Start wallet monitoring and portfolio tracking
-                    this.addTerminalLine("SYSTEM", `🔍 Monitoring wallet: chdsa9...1kB4`, "ai-comment");
-                    this.startWalletMonitoring();
-                    
-                    // Get current portfolio value
-                    await this.updatePortfolioFromWallet();
-                    
-                    // Load existing trades
-                    this.loadExistingTrades();
+                    this.isConnected = true;
+                    this.updateConnectionStatus();
                     
                 } catch (error) {
                     console.error('Firebase connection error:', error);
-                    this.addTerminalLine("SYSTEM", "⚠️ Firebase connection failed. Starting in demo mode...", "ai-comment");
-                    this.startDemoMode();
+                    this.isConnected = false;
+                    this.updateConnectionStatus();
                 }
             }
 
-            async startWalletMonitoring() {
-                // Initial load of recent trades
-                await this.checkWalletActivity();
+            updateConnectionStatus() {
+                const statusEl = document.getElementById('connectionStatus');
                 
-                // Start market discovery after wallet setup
-                this.startMarketDiscovery();
-                
-                // Poll for new trades every 30 seconds
-                setInterval(async () => {
-                    await this.checkWalletActivity();
-                }, 30000);
-                
-                // Update portfolio every 2 minutes
-                setInterval(async () => {
-                    await this.updatePortfolioFromWallet();
-                }, 120000);
-                
-                this.addTerminalLine("PMG", "🤖 I'm now actively monitoring my trading activity...", "ai-comment");
-                document.getElementById('aiStatus').textContent = `Polymarket Girl Active - Scan #${this.scanCount}`;
-            }
-
-            async checkWalletActivity() {
-                try {
-                    const since = this.lastTradeCheck.toISOString();
-                    const response = await fetch(`${this.walletEndpoint}?action=transactions&walletAddress=${this.walletAddress}&since=${since}`);
-                    const data = await response.json();
-                    
-                    if (data.success && data.trades && data.trades.length > 0) {
-                        // Process new trades
-                        for (const trade of data.trades) {
-                            this.processTrade(trade);
-                            
-                            // Save to Firebase for persistence
-                            try {
-                                await db.collection('trades').add({
-                                    ...trade,
-                                    timestamp: firebase.firestore.Timestamp.fromDate(new Date(trade.timestamp))
-                                });
-                            } catch (error) {
-                                console.error('Error saving to Firebase:', error);
-                            }
-                        }
-                        
-                        this.lastTradeCheck = new Date();
-                    }
-                } catch (error) {
-                    console.error('Wallet monitoring error:', error);
+                if (this.isConnected) {
+                    statusEl.textContent = '🟢 Connected to Firebase - All trades are public';
+                    statusEl.className = 'connection-status connected';
+                } else {
+                    statusEl.textContent = '🔴 Firebase connection failed - Check console';
+                    statusEl.className = 'connection-status disconnected';
                 }
             }
 
-            async updatePortfolioFromWallet() {
-                try {
-                    this.addTerminalLine("SYSTEM", "💰 Fetching current portfolio value...", "ai-comment");
-                    
-                    // Get wallet balance and token holdings
-                    const response = await fetch(`${this.walletEndpoint}?action=portfolio&walletAddress=${this.walletAddress}`);
-                    const data = await response.json();
-                    
-                    if (data.success && data.portfolio && data.portfolio.length > 0) {
-                        let totalValue = 0;
-                        this.positions.clear();
-                        
-                        // Process each token holding
-                        for (const holding of data.portfolio) {
-                            const value = holding.amount * holding.price;
-                            totalValue += value;
-                            
-                            this.positions.set(holding.symbol, {
-                                amount: holding.amount,
-                                avgPrice: holding.price,
-                                totalCost: value,
-                                currentValue: value
-                            });
+            setupFormValidation() {
+                const symbolInput = document.getElementById('symbol');
+                const amountInput = document.getElementById('amount');
+                const priceInput = document.getElementById('price');
+
+                // Auto-uppercase symbol
+                symbolInput.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                });
+
+                // Validate positive numbers
+                [amountInput, priceInput].forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        if (parseFloat(e.target.value) < 0) {
+                            e.target.value = '';
                         }
-                        
-                        this.totalValue = totalValue;
-                        this.addTerminalLine("PMG", `💰 Portfolio loaded: $${totalValue.toFixed(2)} across ${data.portfolio.length} tokens`, "ai-comment");
-                        this.updateUI();
-                        
+                    });
+                });
+            }
+
+            async submitTrade(action) {
+                const form = document.getElementById('tradeForm');
+                const formData = new FormData(form);
+                
+                const trade = {
+                    action: action,
+                    symbol: formData.get('symbol').toUpperCase(),
+                    amount: parseFloat(formData.get('amount')),
+                    price: parseFloat(formData.get('price')),
+                    notes: formData.get('notes') || '',
+                    timestamp: new Date().toISOString(),
+                    total: parseFloat(formData.get('amount')) * parseFloat(formData.get('price'))
+                };
+
+                // Validate trade data
+                if (!this.validateTrade(trade)) {
+                    return;
+                }
+
+                try {
+                    if (this.isConnected) {
+                        // Save to Firebase
+                        await this.saveToFirebase(trade);
                     } else {
-                        // Fallback: calculate from trade history
-                        this.addTerminalLine("SYSTEM", "📊 Calculating portfolio from trade history...", "ai-comment");
-                        this.calculatePortfolioFromTrades();
+                        throw new Error('Firebase not connected');
                     }
+
+                    // Show success notification
+                    this.showNotification(`${action.toUpperCase()} order submitted: ${trade.amount} ${trade.symbol} @ $${trade.price}`, 'success');
+                    
+                    // Clear form
+                    form.reset();
+
                 } catch (error) {
-                    console.error('Portfolio fetch error:', error);
-                    this.addTerminalLine("SYSTEM", "⚠️ Using trade history for portfolio calculation", "ai-comment");
-                    this.calculatePortfolioFromTrades();
+                    console.error('Error submitting trade:', error);
+                    this.showNotification('Error submitting trade. Please try again.', 'error');
                 }
             }
 
-            calculatePortfolioFromTrades() {
-                // Calculate portfolio value from existing trade history
-                let totalValue = 0;
-                for (const [symbol, position] of this.positions) {
-                    if (position.amount > 0) {
-                        totalValue += position.amount * position.avgPrice;
-                    }
+            validateTrade(trade) {
+                if (!trade.symbol || trade.symbol.length === 0) {
+                    this.showNotification('Please enter a coin symbol', 'error');
+                    return false;
                 }
-                this.totalValue = totalValue;
-                this.updateUI();
+
+                if (!trade.amount || trade.amount <= 0) {
+                    this.showNotification('Please enter a valid amount', 'error');
+                    return false;
+                }
+
+                if (!trade.price || trade.price <= 0) {
+                    return false;
+                }
+
+                return true;
             }
 
-            async loadExistingTrades() {
+            async saveToFirebase(trade) {
+                await db.collection('trades').add({
+                    ...trade,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+
+            async loadRecentTrades() {
                 try {
                     const snapshot = await db.collection('trades')
                         .orderBy('timestamp', 'desc')
                         .limit(20)
                         .get();
                     
-                    const trades = [];
+                    this.trades = [];
                     snapshot.forEach(doc => {
-                        trades.push(doc.data());
-                    });
-                    
-                    // Process trades in chronological order for proper position calculation
-                    trades.reverse().forEach(trade => {
-                        this.updatePositions(trade);
-                    });
-                    
-                    this.updateUI();
-                    
-                    if (trades.length > 0) {
-                        this.addTerminalLine("SYSTEM", `📊 Loaded ${trades.length} existing trades`, "ai-comment");
-                    }
-                } catch (error) {
-                    console.error('Error loading existing trades:', error);
-                }
-            }
-
-            startDemoMode() {
-                // Demo mode with sample data
-                setTimeout(() => {
-                    this.addRandomAIComment();
-                }, 3000);
-                
-                // Sample portfolio for demo
-                this.positions.set('PEPE', { amount: 1000000, avgPrice: 0.00001205, totalCost: 12.05 });
-                this.positions.set('WIF', { amount: 500, avgPrice: 2.45, totalCost: 1225 });
-                this.totalValue = 1237.05;
-                this.updateUI();
-            }
-
-            addTerminalLine(type, message, className = "") {
-                const line = document.createElement('div');
-                line.className = `terminal-line ${className}`;
-                
-                const timestamp = new Date().toLocaleTimeString();
-                line.innerHTML = `<span class="timestamp">[${timestamp}]</span><span class="type">[${type}]</span> ${message}`;
-                
-                this.terminal.appendChild(line);
-                this.terminal.scrollTop = this.terminal.scrollHeight;
-            }
-
-            startAIComments() {
-                setInterval(() => {
-                    if (Math.random() < 0.3) { // 30% chance every interval
-                        this.getAIComment('random');
-                    }
-                }, 15000 + Math.random() * 20000); // Random interval between 15-35 seconds
-            }
-
-            async getAIComment(type, data = null) {
-                try {
-                    const response = await fetch(this.apiEndpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            type: type,
-                            data: data
-                        })
-                    });
-
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        this.addTerminalLine("PMG", result.message, "ai-comment");
-                    } else {
-                        // Use fallback if AI fails
-                        this.addRandomAIComment();
-                    }
-                } catch (error) {
-                    console.error('AI API Error:', error);
-                    // Use fallback responses
-                    this.addRandomAIComment();
-                }
-            }
-
-            addRandomAIComment() {
-                const fallbacks = [
-                    "Looking for oversold memes under 10M market cap",
-                    "These bundles are crushing every pump.fun launch",
-                    "SOL memes getting hammered, waiting for bounce",
-                    "Volume dried up on most Solana tokens",
-                    "PumpSwap pools too thin on most memecoins right now",
-                    "Checking dev wallets on these new pump.fun launches",
-                    "Seeing some whale accumulation on established memes",
-                    "Most pump.fun charts look like exit liquidity"
-                ];
-                
-                const comment = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-                this.addTerminalLine("PMG", comment, "ai-comment");
-            }
-
-            processTrade(trade) {
-                console.log('Processing trade:', trade);
-                
-                const { action, symbol, amount, price, timestamp } = trade;
-                const total = amount * price;
-                
-                // Add to terminal with first-person language
-                this.addTerminalLine("PMG", `📊 Just ${action.toUpperCase()}ED ${amount} ${symbol} @ ${price} (Total: ${total.toFixed(2)})`, 
-                    action === 'buy' ? 'buy-action' : 'sell-action');
-                
-                // Get AI reaction to trade (speaking as the trader)
-                setTimeout(() => {
-                    this.getAIComment('trade_reaction', { action, symbol, amount, price });
-                }, 1000 + Math.random() * 3000);
-
-                // Update positions
-                this.updatePositions(trade);
-                this.updateUI();
-            }
-
-            updatePositions(trade) {
-                const { action, symbol, amount, price } = trade;
-                
-                if (!this.positions.has(symbol)) {
-                    this.positions.set(symbol, { amount: 0, avgPrice: 0, totalCost: 0 });
-                }
-
-                const position = this.positions.get(symbol);
-                
-                if (action === 'buy') {
-                    const newTotalCost = position.totalCost + (amount * price);
-                    const newAmount = position.amount + amount;
-                    position.avgPrice = newTotalCost / newAmount;
-                    position.amount = newAmount;
-                    position.totalCost = newTotalCost;
-                } else if (action === 'sell') {
-                    position.amount = Math.max(0, position.amount - amount);
-                    if (position.amount === 0) {
-                        position.avgPrice = 0;
-                        position.totalCost = 0;
-                    }
-                }
-
-                // Add to trade history
-                this.trades.unshift({
-                    ...trade,
-                    timestamp: new Date()
-                });
-
-                // Keep only last 20 trades
-                if (this.trades.length > 20) {
-                    this.trades = this.trades.slice(0, 20);
-                }
-            }
-
-            updateUI() {
-                this.updatePortfolioOverview();
-                this.updateActivePositions();
-                this.updateTradeHistory();
-            }
-
-            updatePortfolioOverview() {
-                const overview = document.getElementById('portfolioOverview');
-                const totalValueEl = document.getElementById('totalValue');
-                
-                if (this.positions.size === 0) {
-                    overview.innerHTML = '<div class="portfolio-item"><span style="color: #666;">No positions yet...</span></div>';
-                    totalValueEl.textContent = '$0.00';
-                    return;
-                }
-
-                let totalValue = 0;
-                let html = '';
-
-                for (const [symbol, position] of this.positions) {
-                    if (position.amount > 0) {
-                        const currentValue = position.amount * position.avgPrice;
-                        totalValue += currentValue;
-                        
-                        html += `
-                            <div class="portfolio-item">
-                                <span class="coin-symbol">${symbol}</span>
-                                <span>$${currentValue.toFixed(2)}</span>
-                            </div>
-                        `;
-                    }
-                }
-
-                overview.innerHTML = html;
-                totalValueEl.textContent = `$${totalValue.toFixed(2)}`;
-                this.totalValue = totalValue;
-            }
-
-            updateActivePositions() {
-                const container = document.getElementById('activePositions');
-                
-                const activePositions = Array.from(this.positions)
-                    .filter(([symbol, position]) => position.amount > 0);
-
-                if (activePositions.length === 0) {
-                    container.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No active positions</div>';
-                    return;
-                }
-
-                let html = '';
-                for (const [symbol, position] of activePositions) {
-                    html += `
-                        <div class="position-item">
-                            <div class="coin-symbol">${symbol}</div>
-                            <div>${position.amount.toFixed(4)}</div>
-                            <div>$${position.avgPrice.toFixed(6)}</div>
-                        </div>
-                    `;
-                }
-
-                container.innerHTML = html;
-            }
-
-            updateTradeHistory() {
-                const container = document.getElementById('tradeHistory');
-                
-                if (this.trades.length === 0) {
-                    container.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">No trades yet</div>';
-                    return;
-                }
-
-                let html = '';
-                for (const trade of this.trades.slice(0, 10)) {
-                    html += `
-                        <div class="trade-item">
-                            <div class="${trade.action === 'buy' ? 'positive' : 'negative'}">${trade.action.toUpperCase()}</div>
-                            <div class="coin-symbol">${trade.symbol}</div>
-                            <div>${trade.amount}</div>
-                            <div>$${trade.price}</div>
-                        </div>
-                    `;
-                }
-
-                container.innerHTML = html;
-            }
-
-            // Start market discovery and scanning
-            async startMarketDiscovery() {
-                // Start the scanning personality
-                this.addTerminalLine("PMG", "🔍 Initializing token scanner... Looking for alpha opportunities", "ai-comment");
-                
-                // Initial scan
-                await this.performTokenScan();
-                
-                // Regular scans every 2-5 minutes
-                this.startScanningLoop();
-                
-                // Occasional frustration messages
-                this.startTradingPersonality();
-            }
-
-            startScanningLoop() {
-                const scheduleScan = () => {
-                    const interval = 120000 + Math.random() * 180000; // 2-5 minutes
-                    setTimeout(async () => {
-                        await this.performTokenScan();
-                        scheduleScan();
-                    }, interval);
-                };
-                scheduleScan();
-            }
-
-            async performTokenScan() {
-                this.addTerminalLine("INFO", `🔥 Scan #${this.scanCount}: Analyzing top opportunities from PumpSwap...`, "ai-comment");
-                document.getElementById('aiStatus').textContent = `Polymarket Girl Scanning - Scan #${this.scanCount}`;
-                this.scanCount++;
-                
-                try {
-                    // Get trending tokens
-                    const trendingResponse = await fetch(`${this.walletEndpoint}?action=trending`);
-                    const trendingData = await trendingResponse.json();
-                    
-                    if (trendingData.success && trendingData.trending && trendingData.trending.length > 0) {
-                        // Analyze 1-2 random tokens from trending
-                        const tokensToAnalyze = trendingData.trending.slice(0, Math.floor(Math.random() * 2) + 1);
-                        
-                        for (const token of tokensToAnalyze) {
-                            await this.analyzeToken(token);
-                            await new Promise(resolve => setTimeout(resolve, 2000));
+                        const data = doc.data();
+                        // Convert Firestore timestamp to ISO string if needed
+                        if (data.timestamp?.toDate) {
+                            data.timestamp = data.timestamp.toDate().toISOString();
                         }
-                    } else {
-                        // Fallback analysis with mock data
-                        await this.analyzeMockToken();
-                    }
-                } catch (error) {
-                    console.error('Scan error:', error);
-                    await this.analyzeMockToken();
-                }
-                
-                // Sometimes express frustration
-                if (Math.random() < 0.3) {
-                    setTimeout(() => {
-                        this.expressTraderFrustration();
-                    }, 3000);
-                }
-            }
-
-            async analyzeMockToken() {
-                const mockTokens = ['PEPE', 'WIF', 'BONK', 'FARTCOIN', 'WOJAK', 'DOGGO', 'MICHI', 'POPCAT'];
-                const symbol = mockTokens[Math.floor(Math.random() * mockTokens.length)];
-                const price = Math.random() * 10;
-                const volume24h = Math.random() * 50000000;
-                
-                await this.analyzeToken({
-                    symbol,
-                    name: symbol,
-                    price,
-                    volume24h,
-                    trades24h: Math.floor(Math.random() * 50000),
-                    buyers24h: Math.floor(Math.random() * 25000)
-                });
-            }
-
-            async analyzeToken(token) {
-                const { symbol, name, price, volume24h } = token;
-                const score = Math.floor(Math.random() * 100000000);
-                const liquidity = volume24h * (0.3 + Math.random() * 0.7);
-                const holders = Math.floor(Math.random() * 200000);
-                
-                // Found opportunity
-                this.addTerminalLine("INFO", `🎓 Found trending opportunity $${symbol} (Score: ${score}) - Vol: $${(volume24h/1000).toFixed(1)}K, Liq: $${(liquidity/1000).toFixed(1)}K, Holders: ${holders}`, "ai-comment");
-                
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Token data
-                this.addTerminalLine("INFO", `📊 Found token data: $${symbol} (${name || symbol}) - $${price.toFixed(8)}`, "ai-comment");
-                
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // Volume analysis
-                const buyVol = volume24h * (0.4 + Math.random() * 0.2);
-                const sellVol = volume24h - buyVol;
-                const marketCap = price * holders * (100 + Math.random() * 900);
-                const priceChange = (Math.random() - 0.5) * 20;
-                
-                this.addTerminalLine("INFO", `Using PumpSwap + Birdeye data for $${symbol}`, "ai-comment");
-                this.addTerminalLine("INFO", `Volume: $${(buyVol/1000).toFixed(1)}K buy vs $${(sellVol/1000).toFixed(1)}K sell`, "ai-comment");
-                this.addTerminalLine("INFO", `✅ Volume check passed: 24h=${Math.floor(volume24h)}, 1h=${Math.floor(volume24h/24)} (meets thresholds)`, "ai-comment");
-                this.addTerminalLine("INFO", `Liquidity: $${(liquidity/1000).toFixed(1)}K (PumpSwap), FDV: $${(marketCap/1000000).toFixed(2)}M`, "ai-comment");
-                
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                
-                // Get AI analysis
-                try {
-                    await this.getAIComment('token_analysis', {
-                        symbol,
-                        price,
-                        volume24h,
-                        marketCap,
-                        priceChange,
-                        buyVol,
-                        sellVol,
-                        liquidity
+                        this.trades.push(data);
                     });
+                    
+                    this.displayRecentTrades();
                 } catch (error) {
-                    // Fallback decision
-                    const decisions = ['BUY', 'SELL', 'HOLD'];
-                    const decision = decisions[Math.floor(Math.random() * decisions.length)];
-                    const confidence = Math.floor(Math.random() * 40) + 60;
-                    
-                    this.addTerminalLine("INFO", `🤖 Analysis: Mixed signals on $${symbol}. Volume decent but PumpSwap liquidity concerns.`, "ai-comment");
-                    this.addTerminalLine("INFO", `📊 Decision: ${decision} (${confidence}% confidence)`, decision === 'BUY' ? 'buy-action' : decision === 'SELL' ? 'sell-action' : 'ai-comment');
-                    
-                    if (decision === 'HOLD' || marketCap > 1000000) {
-                        this.addTerminalLine("WARN", `❌ Skipping ${symbol} : Market cap ${(marketCap/1000000).toFixed(2)}M exceeds maximum $10.00M`, "ai-comment");
-                    }
+                    console.error('Error loading trades from Firebase:', error);
+                    document.getElementById('recentTrades').innerHTML = '<div style="text-align: center; color: #ff4444; padding: 20px;">Error loading trades</div>';
                 }
-                
-                this.addTerminalLine("INFO", `Waiting for next opportunity...`, "ai-comment");
             }
 
-            startTradingPersonality() {
-                setInterval(() => {
-                    if (Math.random() < 0.2) { // 20% chance every interval
-                        this.expressTraderFrustration();
-                    }
-                }, 60000 + Math.random() * 120000); // Every 1-3 minutes
-            }
-
-            expressTraderFrustration() {
-                const frustrations = [
-                    "Solana memes are getting absolutely wrecked today. Every pump.fun launch just bleeds out immediately.",
-                    "These fucking bots sniping every new memecoin before retail can even see it on pump.fun.",
-                    "Chart looks decent but the bundle activity is sus. Dev probably dumping on everyone.",
-                    "Been watching this Solana memecoin range for hours. Need volume or I'm staying out.",
-                    "Every token under 5M market cap has zero PumpSwap liquidity. Can't size into anything.",
-                    "Team wallets holding 90% of supply on every pump.fun launch. Pure rug territory.",
-                    "Memecoins oversold but I'm not catching knives on Solana right now.",
-                    "Volume profile on these pump.fun tokens looks terrible. Just retail getting dumped on."
-                ];
-                
-                const frustration = frustrations[Math.floor(Math.random() * frustrations.length)];
-                this.addTerminalLine("PMG", frustration, "ai-comment");
-            }
-
-            // Listen for Firebase updates for manual trades (universal for all users)
-            listenForUpdates() {
+            listenForTrades() {
+                // Listen for new trades in real-time
                 db.collection('trades')
                     .orderBy('timestamp', 'desc')
                     .limit(1)
                     .onSnapshot((snapshot) => {
                         snapshot.docChanges().forEach((change) => {
                             if (change.type === 'added') {
-                                const tradeData = change.doc.data();
-                                // Only process if this is a new trade (within last 10 seconds)
-                                const tradeTime = tradeData.timestamp?.toDate?.() || new Date(tradeData.timestamp);
-                                const now = new Date();
-                                
-                                if (now - tradeTime < 10000) { // Within 10 seconds
-                                    this.processTrade(tradeData);
-                                }
+                                // Reload recent trades when new trade is added
+                                this.loadRecentTrades();
                             }
                         });
-                    }, (error) => {
-                        console.error('Error listening for updates:', error);
-                        this.addTerminalLine("SYSTEM", "⚠️ Lost connection to live feed", "ai-comment");
                     });
+            }
+
+            displayRecentTrades() {
+                const container = document.getElementById('recentTrades');
                 
-                this.addTerminalLine("PMG", "🤖 I'm now actively monitoring my trading activity...", "ai-comment");
-                document.getElementById('aiStatus').textContent = `Polymarket Girl Active - Scan #${this.scanCount}`;
+                if (this.trades.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">No trades submitted yet...</div>';
+                    return;
+                }
+
+                let html = '';
+                const recentTrades = this.trades.slice(0, 10);
+
+                for (const trade of recentTrades) {
+                    const date = new Date(trade.timestamp).toLocaleString();
+                    html += `
+                        <div class="trade-item ${trade.action}">
+                            <div>
+                                <div class="trade-action ${trade.action}">${trade.action}</div>
+                                <div style="font-size: 0.9rem; color: #aaa;">${date}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold;">${trade.amount} ${trade.symbol}</div>
+                                <div style="color: #aaa;">@ ${trade.price}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: bold;">${trade.total.toFixed(2)}</div>
+                                ${trade.notes ? `<div style="font-size: 0.8rem; color: #888;">${trade.notes}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+            }
+
+            showNotification(message, type) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = `notification ${type}`;
+                
+                // Show notification
+                setTimeout(() => {
+                    notification.classList.add('show');
+                }, 100);
+
+                // Hide notification after 4 seconds
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
             }
         }
 
-        // Initialize the terminal
-        const terminal = new PolymarketGirlTerminal();
+        // Initialize the panel
+        const adminPanel = new PolymarketGirlAdmin();
 
-        // Expose for testing (remove in production)
-        window.terminal = terminal;
+        // Utility functions
+        function setSymbol(symbol) {
+            document.getElementById('symbol').value = symbol;
+        }
+
+        function submitTrade(action) {
+            adminPanel.submitTrade(action);
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'b') {
+                    e.preventDefault();
+                    submitTrade('buy');
+                } else if (e.key === 's') {
+                    e.preventDefault();
+                    submitTrade('sell');
+                }
+            }
+        });
+
+        // Auto-focus first input
+        document.getElementById('symbol').focus();
     </script>
 </body>
-</html>}
+</html>
